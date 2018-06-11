@@ -5,15 +5,19 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth /window.innerHeight, 1, 10000);
 const renderer = new THREE.WebGLRenderer();
 
+var mouse ;
+
 camera.position.z = 1000;
 var geometry = new THREE.BoxGeometry(200, 200, 200);
 var material = new THREE.MeshBasicMaterial({
-    color: 0xff0000
-})
+    color: 0xff0000,
+    wireframe: true
+});
 
 let mesh = new THREE.Mesh(geometry, material);
 let child = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-    color: 0x00ff00
+    color: 0x00ff00,
+    wireframe: true
 }));
 
 child.position.x = 300;
@@ -23,9 +27,34 @@ mesh.add(child);
 
 new THREE.Object3D();
 
+let fpsObject = new THREE.Object3D();
+
+
+let pitchObject = new THREE.Object3D();
+pitchObject.add(camera);
+
+let yawObject = new THREE.Object3D();
+yawObject.position.y = 10;
+yawObject.add(pitchObject);
+fpsObject.add(yawObject);
+
+scene.add(fpsObject);
+scene.add(yawObject);
+
+document.addEventListener('mousemove', function (event) {
+    const movementX = event.movementX;
+    const movementY = event.movementY;
+
+    yawObject.rotation.y -= movementX * 0.002;
+    pitchObject.rotation.x -= movementY * 0.002;
+
+    pitchObject.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
+}, false);
 
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+
 let moveState = {
     left: false,
     right: false,
@@ -37,7 +66,7 @@ let moveIteration= {
     right: 1,
     up: 1,
     down: 1
-}
+};
 
 function update(){
 
@@ -89,10 +118,9 @@ function disableMoveState(e){
             break;
     }
 }
-window.addEventListener('keydown', enableMoveState, false);
-window.addEventListener('keyup', disableMoveState, false);
 
-var mouse ;
+//window.addEventListener('keydown', enableMoveState, false);
+//window.addEventListener('keyup', disableMoveState, false);
 
 function mouseTracker(e){
     mesh.rotation.y += (e.movementX / 100);
@@ -106,9 +134,11 @@ function enableMouseTracking(e){
 function disableMouseTracking(e){
     window.removeEventListener("mousemove", mouseTracker);
 }
-window.addEventListener('mousedown', enableMouseTracking, false);
-window.addEventListener('mouseup', disableMouseTracking, false);
 
+//window.addEventListener('mousemove', mouseTracker, false);
+
+//window.addEventListener('mousedown', enableMouseTracking, false);
+//window.addEventListener('mouseup', disableMouseTracking, false);
 
 function animate() {
     requestAnimationFrame( animate );
@@ -117,5 +147,11 @@ function animate() {
 }
 animate();
 
+// Window resize handler
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}, false);
 
 
