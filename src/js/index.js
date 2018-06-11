@@ -8,12 +8,20 @@ const renderer = new THREE.WebGLRenderer();
 camera.position.z = 1000;
 var geometry = new THREE.BoxGeometry(200, 200, 200);
 var material = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    wireframe: true
+    color: 0xff0000
 })
+
 let mesh = new THREE.Mesh(geometry, material);
+let child = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+    color: 0x00ff00
+}));
+
+child.position.x = 300;
 
 scene.add(mesh);
+mesh.add(child);
+
+new THREE.Object3D();
 
 
 renderer.setSize(window.innerWidth,window.innerHeight);
